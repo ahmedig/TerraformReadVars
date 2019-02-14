@@ -1,0 +1,44 @@
+{
+    "manifestVersion": 1,
+    "id": "read-terraform-vars",
+    "name": "Read Terraform vars into VSTS vars",
+    "version": "1.0.2",
+    "publisher": "AhmedIG",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "description": "An easy way to grab variables from your terraform tfvar files, into a VSTS variable. Just give it the key, and it will save the value in a variable.",
+    "categories": [
+        "Build and release"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"
+    },
+    "files": [
+        {
+            "path": "buildAndReleaseTask"
+        }
+    ],
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "contributions": [
+        {
+            "id": "custom-read-terraform-vars",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "buildAndReleaseTask"
+            }
+        }
+    ],
+    "galleryFlags": [
+        "Public"
+    ]
+}

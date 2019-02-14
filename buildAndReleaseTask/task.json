@@ -1,0 +1,60 @@
+{
+  "id": "76b412f0-42a5-11e8-9f7d-9be8c2ee32bd",
+  "name": "ReadTerraformVariableValue",
+  "friendlyName": "Read Terraform Variable Value",
+  "description": "Reads a terraform variables file, and gets a value by key",
+  "author": "AhmedIG",
+  "helpMarkDown": "Replace with markdown to show in help",
+  "category": "Utility",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "demands": [],
+  "version": {
+    "Major": "0",
+    "Minor": "1",
+    "Patch": "6"
+  },
+  "minimumAgentVersion": "1.95.0",
+  "instanceNameFormat": "ReadTerraformVariableValue $(message)",
+  "inputs": [
+    {
+      "name": "File",
+      "type": "filePath",
+      "label": "Terraform Variable file path",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Terraform Variable file path."
+    },
+    {
+      "name": "RootKey",
+      "type": "string",
+      "label": "Root Key",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Root Key that will be searched. It's in the following format: RootKey { PropertyKey = Value }. Leave empty if you are after a key=value thing."
+    },
+    {
+      "name": "PropertyKey",
+      "type": "string",
+      "label": "Property Key",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Property key that will be searched. It's in the following format PropertyKey=Value"
+    },
+    {
+      "name": "OutputVariableName",
+      "type": "string",
+      "label": "Output Variable Name",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Name of the variable that will hold the value when extracted."
+    }
+  ],
+  "execution": {
+    "PowerShell3": {
+      "target": "GetTfVarValueByKey.ps1"
+    }
+  }
+}
