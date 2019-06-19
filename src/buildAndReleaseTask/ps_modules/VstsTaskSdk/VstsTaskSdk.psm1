@@ -12,17 +12,9 @@ if ($host.Name -ne 'ConsoleHost') {
 [bool]$script:nonInteractive = "$($ModuleParameters['NonInteractive'])" -eq 'true'
 Write-Verbose "NonInteractive: $script:nonInteractive"
 
-# VstsTaskSdk.dll contains the TerminationException and NativeMethods for handle long path
-# We used to do inline C# in this powershell module
-# However when csc compile the inline C#, it will hit process env block size limit since it's not use unicode to encode env
-# To solve the env block size problem, we choose to put all inline C# into an assembly VstsTaskSdk.dll, signing it, package with the PS modules.
-Write-Verbose "Loading compiled helper $PSScriptRoot\VstsTaskSdk.dll."
-Add-Type -LiteralPath $PSScriptRoot\VstsTaskSdk.dll
-
 # Import/export functions.
 . "$PSScriptRoot\FindFunctions.ps1"
 . "$PSScriptRoot\InputFunctions.ps1"
-. "$PSScriptRoot\LegacyFindFunctions.ps1"
 . "$PSScriptRoot\LocalizationFunctions.ps1"
 . "$PSScriptRoot\LoggingCommandFunctions.ps1"
 . "$PSScriptRoot\LongPathFunctions.ps1"
@@ -32,20 +24,12 @@ Add-Type -LiteralPath $PSScriptRoot\VstsTaskSdk.dll
 . "$PSScriptRoot\OutFunctions.ps1" # Load the out functions after all of the other functions are loaded.
 Export-ModuleMember -Function @(
         # Find functions.
-        'Find-Match'
-        'New-FindOptions'
-        'New-MatchOptions'
-        'Select-Match'
+        'Find-Files'
         # Input functions.
         'Get-Endpoint'
-        'Get-SecureFileTicket'
-        'Get-SecureFileName'
         'Get-Input'
         'Get-TaskVariable'
-        'Get-TaskVariableInfo'
         'Set-TaskVariable'
-        # Legacy find functions.
-        'Find-Files'
         # Localization functions.
         'Get-LocString'
         'Import-LocStrings'
@@ -54,8 +38,6 @@ Export-ModuleMember -Function @(
         'Write-AddBuildTag'
         'Write-AssociateArtifact'
         'Write-LogDetail'
-        'Write-PrependPath'
-        'Write-SetEndpoint'
         'Write-SetProgress'
         'Write-SetResult'
         'Write-SetSecret'
@@ -65,32 +47,35 @@ Export-ModuleMember -Function @(
         'Write-TaskVerbose'
         'Write-TaskWarning'
         'Write-UpdateBuildNumber'
-        'Write-UpdateReleaseName'
         'Write-UploadArtifact'
         'Write-UploadBuildLog'
-        'Write-UploadFile'
-        'Write-UploadSummary'
         # Out functions.
         'Out-Default'
         # Server OM functions.
-        'Get-AssemblyReference'
         'Get-TfsClientCredentials'
-        'Get-TfsService'
         'Get-VssCredentials'
-        'Get-VssHttpClient'
         # Tool functions.
-        'Assert-Agent'
         'Assert-Path'
         'Invoke-Tool'
         # Trace functions.
         'Trace-EnteringInvocation'
         'Trace-LeavingInvocation'
         'Trace-Path'
-        # Proxy functions
-        'Get-WebProxy'
-        # Client cert functions
-        'Get-ClientCertificate'
     )
+
+# Special internal exception type to control the flow. Not currently intended
+# for public usage and subject to change. If the type has already
+# been loaded once, then it is not loaded again.
+Write-Verbose "Adding exceptions types."
+Add-Type -WarningAction SilentlyContinue -Debug:$false -TypeDefinition @'
+namespace VstsTaskSdk
+{
+    public class TerminationException : System.Exception
+    {
+        public TerminationException(System.String message) : base(message) { }
+    }
+}
+'@
 
 # Override Out-Default globally.
 $null = New-Item -Force -Path "function:\global:Out-Default" -Value (Get-Command -CommandType Function -Name Out-Default -ListImported)
@@ -142,7 +127,7 @@ $null = New-Item -Force -Path "function:\global:Invoke-VstsTaskScript" -Value ([
         # Initialize the environment.
         $vstsModule = Get-Module -Name VstsTaskSdk
         Write-Verbose "$($vstsModule.Name) $($vstsModule.Version) commit $($vstsModule.PrivateData.PSData.CommitHash)" 4>&1 | Out-Default
-        & $vstsModule Initialize-Inputs 4>&1 | Out-Default
+        & $vstsModule Initialize-SecureInputs 4>&1 | Out-Default
 
         # Remove the local variable before calling the user's script.
         Remove-Variable -Name vstsModule
@@ -157,10 +142,8 @@ $null = New-Item -Force -Path "function:\global:Invoke-VstsTaskScript" -Value ([
     } catch [VstsTaskSdk.TerminationException] {
         # Special internal exception type to control the flow. Not currently intended
         # for public usage and subject to change.
-        $global:__vstsNoOverrideVerbose = ''
         Write-Verbose "Task script terminated." 4>&1 | Out-Default
     } catch {
-        $global:__vstsNoOverrideVerbose = ''
         Write-Verbose "Caught exception from task script." 4>&1 | Out-Default
         $_ | Out-Default
         Write-Host "##vso[task.complete result=Failed]"
