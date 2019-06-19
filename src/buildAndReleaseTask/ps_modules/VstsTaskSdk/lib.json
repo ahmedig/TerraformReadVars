@@ -16,5 +16,5 @@
     "PSLIB_StringFormatFailed": "String format failed.",
     "PSLIB_StringResourceKeyNotFound0": "String resource key not found: '{0}'",
     "PSLIB_TaskVariable0": "'{0}' task variable"
-  } 
+  }
 }
