@@ -1,5 +1,9 @@
 # Terraform vars into VSTS vars
 
+[![Build Status](https://ahmedig.visualstudio.com/Azure%20Devops%20Extensions/_apis/build/status/ahmedig.TerraformReadVars?branchName=master)](https://ahmedig.visualstudio.com/Azure%20Devops%20Extensions/_build/latest?definitionId=5&branchName=master)
+
+To contribute to this extension, please visit [this repository](https://github.com/ahmedig/TerraformReadVars).
+
 ## Introduction
 
  A lot of people use Terraform for infrastructure as code, and they save their values in tfvar files, for every environment.
