@@ -1,15 +1,15 @@
 {
     "manifestVersion": 1,
     "id": "read-terraform-vars",
-    "name": "Read Terraform vars into VSTS vars",
-    "version": "1.0.2",
+    "name": "Read Terraform vars into Azure DevOps vars",
+    "version": "1.0.3",
     "publisher": "AhmedIG",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
     ],
-    "description": "An easy way to grab variables from your terraform tfvar files, into a VSTS variable. Just give it the key, and it will save the value in a variable.",
+    "description": "An easy way to grab variables from your terraform tfvar files, into an Azure DevOps variable. Just give it the key, and it will save the value in a variable.",
     "categories": [
         "Build and release"
     ],
